@@ -1,0 +1,21 @@
+# LaTeX temporaries
+*.aux
+*.log
+*.nav
+*.out
+*.snm
+*.toc
+*.*latexmk
+*.fls
+
+# Editor temporaries
+*.swp
+*.bak
+*.bkp
+*.backup
+*~
+.idea/
+
+# Build targets / config
+build/
+Make.local
