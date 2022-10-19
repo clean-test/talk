@@ -1,0 +1,1056 @@
+\documentclass[10pt,aspectratio=169,utf8]{beamer}
+% \documentclass[14pt,notes only, handout,aspectratio=169,utf8]{beamer}
+% \documentclass[10pt,handout,aspectratio=169,utf8]{beamer}
+
+  % We need this package to properly import our dependencies below.
+  \usepackage{import}  % subimport
+  \subimport{style/}{all.tex}
+
+  \title{Clean Test}
+  \subtitle{A modern testing framework}
+  \author{Philipp Ochsendorf}
+  \date{November 17th, 2022}
+
+\begin{document}
+
+\begin{frame}
+ \maketitle
+\end{frame}
+
+\begin{frame}
+  \frametitle{DeepL: We are hiring}
+
+  \begin{columns}[onlytextwidth]
+    \begin{column}{.4\textwidth}
+      \begin{center}
+        \href{%
+          https://www.deepl.com/translator
+        }{%
+          \includegraphics[width=\textwidth]{img/deepl}
+        }
+
+        \vspace{15pt}
+
+        \href{%
+          https://jobs.deepl.com/
+        }{
+          \Large{We are hiring!}
+        }
+      \end{center}
+    \end{column}
+
+    \begin{column}{.55\textwidth}
+      \begin{itemize}
+        \item
+        Meaningful work: \\
+        we break down language barriers
+
+        \item
+        Fast growing European startup
+
+        \item
+        Interesting challenges at scale
+
+        \item
+        Modern \texttt{C++}, latest tools
+
+        \item
+        Work independently with smart colleagues
+
+        \vspace{10pt}
+
+        \item Many open positions in engineering teams, \\
+        several with a C++ focus
+        (\href{https://jobs.deepl.com/o/senior-backendentwickler-c-wmd-deremote-koln-oder-paderborn}{backend},
+        \href{https://jobs.deepl.com/o/senior-data-engineer-wmd-language-data-3}{research})
+      \end{itemize}
+    \end{column}
+  \end{columns}
+\end{frame}
+\note{
+  We develop neural networks to help people work with language.
+}
+
+\section{Introduction}
+\begin{frame}[fragile]
+  \frametitle{Clean Test: a modern testing framework}
+
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{.55\textwidth}
+      \begin{itemize}
+        \item Standard \texttt{C++}20, no macros
+        \item Parallel test execution, \\ thread safe expectations
+        \item CI ready: JUnit export, UTF-8 support
+        \item \texttt{CMake} library without dependencies
+        \item Liberal \texttt{BSL-1.0} license
+      \end{itemize}
+    \end{column}
+    \begin{column}{.45\textwidth}
+      \includeDemo{Overview.cpp}
+    \end{column}
+  \end{columns}
+\end{frame}
+\note{
+  \begin{itemize}
+    \item
+    \textbf{Nowadays} testing sequentially wastes resources; simulataneous failures are essential.
+
+    \item
+    Not header only: easy to integrate with \texttt{CMake}, no need to recompile the framework over and over again.
+
+    \item
+    \code{ct::main} not necessary
+
+    \item
+    no macros $\Rightarrow$ experienced developers can use IDE to understand example
+
+    \item
+    3 Concepts: suites, tests and expectations.
+  \end{itemize}
+}
+
+\section{Suites and Tests}
+\begin{frame}
+ \frametitle{Suites and Tests}
+
+ \begin{columns}[onlytextwidth]
+  \begin{column}{.45\textwidth}
+    \begin{overlayarea}{\textwidth}{.9\textheight}
+      \only<1 | handout:0>{
+        \includeDemo[%
+          linerange = {1-12},%
+        ]{Intro.cpp}
+      }
+      \only<2 | handout:0>{
+        \includeDemo[%
+          linerange = {1-17,22},%
+        ]{Intro.cpp}
+      }
+      \only<3->{
+        \includeDemo{Intro.cpp}
+      }
+    \end{overlayarea}
+  \end{column}
+
+  \begin{column}{.55\textwidth}
+    \begin{description}
+      \item[Suite] test initialization executed automatically during program start
+      \item[Tests] standalone callable performing runtime checks
+    \end{description}
+
+    \vspace{10pt}
+    \begin{flushright}
+      \includegraphics[width=.6\textwidth]{img/qr}
+    \end{flushright}
+  \end{column}
+ \end{columns}
+
+\end{frame}
+\note{
+  \begin{itemize}
+    \item
+    QR Code leads to the talk (clickable links)
+
+    \item \textbf{Suites}: \textbf{automatically executed}, generate names, setup tests, nest
+    \item \textbf{Name}: just a string, non-unique supported (but confusing)
+    \item \textbf{Tests}: might be executed (runtime), data must not be dangling
+    \item Special assignment for suites necessary at namespace scope.
+    \item Both suites and tests are usually lambdas, but functions also work.
+  \end{itemize}
+}
+
+\begin{frame}[fragile]
+ \frametitle{Runtime Configurable}
+
+ \begin{columns}[T,onlytextwidth]
+  \begin{column}{.45\textwidth}
+    \begin{console}[gobble = 6]
+      \MG{>} ./demo
+    \end{console}
+    \includeConsole{Intro}
+  \end{column}
+  \begin{column}{.45\textwidth}
+    \begin{console}[gobble = 6]
+      \MG{>} ./demo \textminus{}\textminus{}list
+    \end{console}
+    \includeConsole{Intro-listing}
+  \end{column}
+ \end{columns}
+
+ \begin{itemize}
+  \item Test selection
+  \item Controlling parallelism
+  \item Further options with \code{\textminus{}\textminus{}help}
+ \end{itemize}
+\end{frame}
+\note{
+  \begin{itemize}
+    \item
+    Executes \textbf{all tests} by default
+
+    \item
+    Actual output shown (i.e.\ generated during build); in particular \textbf{all demos compile}.
+
+    \item
+    Can already see that tests are \textbf{executed concurrently}.
+
+    \item
+    Many execution details \textbf{runtime configurable}.
+  \end{itemize}
+}
+
+\section{Expectations}
+\begin{frame}[fragile]
+  \frametitle{Expectations}
+
+  \begin{columns}[onlytextwidth]
+    \begin{column}{.5\textwidth}
+      \includeDemo{ExpectIntro.cpp}
+    \end{column}
+
+    \begin{column}{.5\textwidth}
+      \includeConsole{ExpectIntro}
+    \end{column}
+  \end{columns}
+\end{frame}
+\note{
+  \begin{itemize}
+    \item Sad truth: no introspection without a little help
+    \item Second reason for using a testing framework
+  \end{itemize}
+}
+
+\begin{frame}[fragile]
+  \frametitle{Expectations with Expression Introspection}
+
+  \begin{itemize}
+    \item
+    \code{ct::lift} wraps anything for introspection
+    \item
+    Many UDLs for lifting scalar and string types
+  \end{itemize}
+
+  \begin{columns}[onlytextwidth]
+    \begin{column}{.5\textwidth}
+      \includeDemo{ExpectIntrospection.cpp}
+    \end{column}
+
+    \begin{column}{.5\textwidth}
+      \includeConsole{ExpectIntrospection}
+    \end{column}
+  \end{columns}
+
+  \begin{itemize}
+    \item
+    Implemented with \emph{\href{https://en.wikipedia.org/wiki/Expression_templates}{Expression Templates}}
+    [\href{https://web.archive.org/web/20050210090012/http://osl.iu.edu/~tveldhui/papers/Expression-Templates/exprtmpl.html}{T.\ Veldhuizen 1995},
+    \href{https://www.amazon.de/-/en/David-Vandervoorde/dp/0201734842}{D.\ Vandevoorde 2002}]
+  \end{itemize}
+\end{frame}
+\note{
+  \begin{itemize}
+    \item Expression tee as paramter (object)
+    \item lifted value usable exactly as the original value.
+  \end{itemize}
+  \textbf{Meta}
+  \begin{itemize}
+    \item
+    How does that work?
+
+    \item
+    Dive into \textbf{details now}, return to other \textbf{features later}.
+  \end{itemize}
+}
+
+\subsection{Basic Attempt}
+\begin{frame}[fragile]
+  \frametitle{Expression Introspection Attempt (1/4)}
+  \vspace{-4pt}
+  \begin{columns}[T]
+    \begin{column}{.5\textwidth}
+      \includeDemo[%
+        linerange = {6-29},%
+        firstnumber = 6,%
+        aboveskip = 0pt,%
+        belowskip = 0pt,%
+      ]{ExpectAttempt.cpp}
+    \end{column}
+
+    \begin{column}{.5\textwidth}
+      \includeDemo[%
+        linerange = {31-42},%
+        firstnumber = 31,%
+        aboveskip = 0pt,%
+        belowskip = 0pt,%
+      ]{ExpectAttempt.cpp}
+    \end{column}
+  \end{columns}
+\end{frame}
+\note{
+  \begin{itemize}
+    \item
+    Conversion to bool for \code{static\_assert}
+  \end{itemize}
+}
+
+\begin{frame}[fragile]
+  \frametitle{Expression Introspection Attempt (2/4)}
+  \vspace{-4pt}
+  \begin{columns}[T]
+    \begin{column}{.5\textwidth}
+      \includeDemo[%
+        linerange = {46-69},%
+        firstnumber = 46,%
+        aboveskip = 0pt,%
+        belowskip = 0pt,%
+      ]{ExpectAttempt.cpp}
+    \end{column}
+
+    \begin{column}{.5\textwidth}
+      \includeDemo[%
+        linerange = {71-80},%
+        firstnumber = 71,%
+        aboveskip = 0pt,%
+        belowskip = 0pt,%
+      ]{ExpectAttempt.cpp}
+    \end{column}
+  \end{columns}
+\end{frame}
+\note{
+  \begin{itemize}
+    \item \code{operator==}
+    \begin{itemize}
+      \item \code{lift} for convenience (with deduction guides)
+      \item \code{requires} specs omitted
+      (at least one \code{Expression}, \code{Lhs} and \code{Rhs} actually support \code{==})
+    \end{itemize}
+  \end{itemize}
+}
+
+\begin{frame}[fragile]
+  \frametitle{Expression Introspection Attempt (3/4)}
+
+  \begin{columns}[onlytextwidth]
+    \begin{column}{.5\textwidth}
+      \includeDemo[%
+        linerange = {82-90},%
+        firstnumber = 82,%
+      ]{ExpectAttempt.cpp}
+      \includeDemo[%
+        linerange = {1-3,20},%
+        firstnumber = 94,%
+      ]{ExpectAttemptMain.h}
+    \end{column}
+
+    \begin{column}{.45\textwidth}
+      \includeConsole[lastline=1]{ExpectAttempt}
+      \begin{figure}
+        \centering
+        \includeDrawIo[width=.35\textwidth]{attempt0}
+      \end{figure}
+    \end{column}
+  \end{columns}
+\end{frame}
+\note{
+  \begin{itemize}
+    \item Question to audience: Why could this be \textbf{problematic}?
+    \item
+      Using \code{t} \textbf{twice} in \code{expect} could be considered a \textbf{code smell}.
+      It's actually even more than that.
+    \item
+      Can easily be extended to many other operators.
+  \end{itemize}
+}
+
+\begin{frame}[fragile]
+  \frametitle{Required Operators}
+  \begin{block}{Overloaded Operators}
+    \begin{tabular}{ l l }
+      \textbf{Unary} &
+      \code{not},
+      \code{+},
+      \code{-},
+      \code{*} (dereference)
+      \\
+
+      \textbf{Arithmetic}
+      &
+      \code{+},
+      \code{-},
+      \code{*},
+      \code{/},
+      \code{\%}
+      \\
+
+      \textbf{Bitwise}
+      &
+      \code{\&},
+      \code{|},
+      \code{\textasciitilde{}},
+      \code{\textasciicircum{}}
+      \\
+
+      \textbf{Comparison}
+      &
+      \code{<},
+      \code{<=},
+      \code{>},
+      \code{>=},
+      \code{==},
+      \code{!=}
+      \\
+
+      \textbf{Special}
+      &
+      \code{,} (comma),
+      \code{and},
+      \code{or}
+      \\
+    \end{tabular}
+  \end{block}
+\end{frame}
+\note{
+  \begin{itemize}
+    \item
+    22 operators in total with \textbf{\code{const} parameters}
+
+    \item
+    Special \textbf{text syntax} for \code{not}, \code{and}, and \code{or}.
+
+    \item
+    Implementations for \code{and} and \code{or} more \textbf{involved}.
+
+    \item
+    \textbf{Hard} to get right; start with \textbf{simple attempt}.
+  \end{itemize}
+}
+
+\begin{frame}[fragile]
+  \frametitle{Expression Introspection Attempt (4/4)}
+  \vspace{-4pt}
+  \begin{columns}[T]
+    \begin{column}{.5\textwidth}
+      \includeDemo[%
+        linerange = {92-115},%
+        firstnumber = 92,%
+        aboveskip = 0pt,%
+        belowskip = 0pt,%
+      ]{ExpectAttempt.cpp}
+    \end{column}
+
+    \begin{column}{.5\textwidth}
+      \includeDemo[%
+        linerange = {1-7,20},%
+        firstnumber = 184,%
+        aboveskip = 0pt,%
+      ]{ExpectAttemptMain.h}
+      \visible<2 | handout:1> {
+        \includeConsole[lastline=2]{ExpectAttempt}
+      }
+      \vspace{-5pt}
+      \begin{center}
+        \includeDrawIo[width=.38\textwidth]{attempt1}
+      \end{center}
+    \end{column}
+  \end{columns}
+\end{frame}
+\note{
+  \begin{itemize}
+    \item
+    Custom \code{operator or} never short circuits,
+    but rather works as function call.
+  \end{itemize}
+  % https://stackoverflow.com/questions/35918735/short-circuit-evaluation-on-c-logical-and-operators#comment59495892_35918735
+
+  \textbf{Problem Analysis}
+  \begin{itemize}
+    \item
+    Output needs to be short circuit aware
+
+    \item
+    Re-evaluating \code{m\_lhs.value} infeasible
+
+    \item
+    Need caching
+
+    \item
+    Discover my next attempt
+
+    \item
+    ($\Rightarrow$ Naturally can't deal with rvalue refs transparently.)
+  \end{itemize}
+}
+
+\subsection{Caching Attempt}
+\begin{frame}
+  \frametitle{Expression Introspection Cached Attempt (1/2)}
+
+  \begin{columns}[T]
+    \begin{column}{.5\textwidth}
+      \includeDemo[%
+        linerange = {92-112},%
+        firstnumber = 92,%
+      ]{ExpectCached.cpp}
+    \end{column}
+    \begin{column}{.5\textwidth}
+      \includeDemo[%
+        linerange = {113-132},%
+        firstnumber = 113,%
+      ]{ExpectCached.cpp}
+    \end{column}
+  \end{columns}
+\end{frame}
+\note{}
+
+\begin{frame}
+  \frametitle{Expression Introspection Cached Attempt (2/2)}
+
+  \begin{columns}[onlytextwidth]
+    \begin{column}{.5\textwidth}
+      \begin{overlayarea}{\textwidth}{.6\textheight}
+        \only<1 | handout:0>{
+          \includeDemo[%
+            linerange = {1-7,20},%
+            firstnumber = 184,%
+          ]{ExpectAttemptMain.h}
+        }
+        \only<2->{
+          \includeDemo[%
+            linerange = {1-12,20},%
+            firstnumber = 184,%
+          ]{ExpectAttemptMain.h}
+        }
+      \end{overlayarea}
+
+      \begin{overlayarea}{\textwidth}{.2\textheight}
+        \only<1 | handout:0>{
+          \includeConsole[lastline=2]{ExpectCached}
+        }
+        \only<2->{
+          \includeConsole{ExpectCached}
+        }
+      \end{overlayarea}
+    \end{column}
+
+    \begin{column}{.5\textwidth}
+      \only<2->{
+          \begin{figure}
+            \centering
+            \includeDrawIo[width=.9\textwidth]{cached}
+          \end{figure}
+      }
+      \begin{overlayarea}{\textwidth}{.2\textheight}
+        \only<3->{
+          \begin{itemize}
+            \item
+            May only cache upon \code{value()} call
+
+            \item
+            Requires \code{mutable} members;\\
+            not \code{constexpr}.
+          \end{itemize}
+        }
+      \end{overlayarea}
+    \end{column}
+  \end{columns}
+\end{frame}
+\note{
+  \begin{itemize}
+    \item
+    Seemed like a dead end
+  \end{itemize}
+}
+
+\begin{frame}[standout]
+    \begin{quote}
+      All problems in computer science can be solved \\
+      by another level of indirection.
+    \end{quote}
+    \begin{flushright}
+      David J.\ Wheeler
+    \end{flushright}
+\end{frame}
+\note{
+  \begin{itemize}
+    \item
+    "Fundamental theorem of software engineering"
+
+    \item
+    \textbf{separate} expression and evaluation
+
+    \item
+    Evaluation contains cached (sub-)values
+  \end{itemize}
+}
+
+\subsection{Final Version}
+\begin{frame}[fragile]
+  \frametitle{Expression Evaluation with Introspection (1/3)}
+
+  \parbox[c][.92\textheight][c]{\textwidth}{
+    \includeDemo[%
+      linerange = {176-197},%
+      firstnumber = 176,%
+      aboveskip = 0pt,%
+      belowskip = 0pt,%
+    ]{ExpectEvaluation.cpp}
+  }
+\end{frame}
+\note{
+  \begin{itemize}
+    \item
+    Split API
+  \end{itemize}
+}
+
+\begin{frame}
+  \frametitle{Expression Evaluation with Introspection (2/3)}
+
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{.5\textwidth}
+      \includeDemo[%
+        linerange = {137-159},%
+        firstnumber = 137,%
+      ]{ExpectEvaluation.cpp}
+    \end{column}
+    \begin{column}{.5\textwidth}
+      \includeDemo[%
+        linerange = {160-174},%
+        firstnumber = 160,%
+      ]{ExpectEvaluation.cpp}
+    \end{column}
+  \end{columns}
+\end{frame}
+\note{
+  \begin{itemize}
+    \item
+    Carry over idea to all other operators
+
+    \item
+    Reduce boilerplate with a CRTP base
+  \end{itemize}
+}
+
+\begin{frame}
+  \frametitle{Expression Evaluation with Introspection (3/3)}
+
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{.5\textwidth}
+      \includeDemo[%
+        linerange = {61-71},%
+        firstnumber = 61,%
+      ]{ExpectEvaluation.cpp}
+      \includeDemo[%
+        linerange = {1-12,20},%
+        firstnumber = 184,%
+      ]{ExpectAttemptMain.h}
+    \end{column}
+    \begin{column}{.5\textwidth}
+      \includeConsole{ExpectEvaluation}
+      \begin{center}
+        \includeDrawIo[%
+          width=\textwidth,%
+        ]{evaluation}
+      \end{center}
+    \end{column}
+  \end{columns}
+\end{frame}
+\note{
+  \begin{itemize}
+    \item
+    \code{ct::expect} simplified: only accepts \code{Expression}s here.
+
+    \item
+    3 cases of evaluating \code{or}s: evaluating 0, 1, 2 children.
+  \end{itemize}
+}
+
+\subsection{Limitations}
+\begin{frame}
+  \frametitle{Limitations of \texttt{ct::lift}}
+
+  \begin{itemize}
+    \item
+    Ensure that operators have at least one \code{ct::Expression} operand, e.g.\ \code{ct::lift}.
+
+    \item
+    Function calls are not lazy by default
+    \includeDemo[%
+      linerange = {15-24},%
+      firstnumber = 15,%
+    ]{Limitations.cpp}
+  \end{itemize}
+\end{frame}
+\note{}
+
+\section{Advanced Expectations}
+\begin{frame}[fragile]
+  \frametitle{Advanced Expectations}
+
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{.56\textwidth}
+      \setlength{\leftmargini}{0.0cm}
+      \begin{itemize}
+        \item
+          Debug output
+          \includeDemo[%
+            linerange = {22-22},%
+            firstnumber = 22,%
+            aboveskip = 4pt,%
+            belowskip = 7pt,%
+          ]{AdvancedExpectations.cpp}
+        \item
+          Assertions: \code{asserted} / \code{asserted\_if}
+          \includeDemo[%
+            linerange = {26-27},%
+            firstnumber = 26,%
+            aboveskip = 4pt,%
+            belowskip = 7pt,%
+          ]{AdvancedExpectations.cpp}
+        \item
+          Flakyness: \code{flaky} / \code{flaky\_if}
+          \includeDemo[%
+            linerange = {33-33},%
+            firstnumber = 33,%
+            aboveskip = 4pt,%
+            belowskip = 7pt,%
+          ]{AdvancedExpectations.cpp}
+        \item
+          Exceptions: \code{throws} / \code{throws<Exception>}
+          \includeDemo[%
+            linerange = {39-39},%
+            firstnumber = 39,%
+            aboveskip = 4pt,%
+            belowskip = 7pt,%
+          ]{AdvancedExpectations.cpp}
+        \item
+          Fatal Assertions: \code{aborts} / \code{debug\_aborts}
+          \includeDemo[%
+            linerange = {49-51},%
+            firstnumber = 49,%
+            aboveskip = 4pt,%
+            belowskip = 7pt,%2
+          ]{AdvancedExpectations.cpp}
+      \end{itemize}
+    \end{column}
+    \begin{column}{.46\textwidth}
+      \includeConsole{AdvancedExpectations}
+    \end{column}
+  \end{columns}
+\end{frame}
+\note{
+  \begin{itemize}
+    \item
+    \code{noexcept} via \code{not throws}; all part of the expression realm.
+
+    \item
+    Abort / throw checks \textbf{lazy}.
+  \end{itemize}
+}
+
+\section{Distance Checks}
+\begin{frame}[fragile]
+  \frametitle{Advanced Distance Checks}
+
+  \vspace{-4pt}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{.55\textwidth}
+      \includeDemo[%
+        linerange = {17-27},%
+        firstnumber = 17,%
+      ]{Distance.cpp}
+    \end{column}
+    \begin{column}{.45\textwidth}
+      \begin{itemize}
+        \item
+          CPO \code{ct::utils::norm}
+
+        \item
+          Absolute distance
+          \[
+            \Delta_{\text{abs}}\left(x, y\right)
+            =
+            \left\lVert x - y \right\rVert
+          \]
+
+        \item Relative distance
+          \[
+            \Delta_{\text{rel}}\left(x, y\right)
+            =
+            \frac{
+              \left\lVert x - y \right\rVert
+            }{
+              \max\left(
+                \left\lVert x \right\rVert,
+                \left\lVert y \right\rVert
+              \right)
+            }
+          \]
+      \end{itemize}
+    \end{column}
+  \end{columns}
+  \vspace{4pt}
+
+  \includeConsole{Distance}
+\end{frame}
+\note{
+  \begin{itemize}
+    \item
+    \code{ct::tolerance(absolute, relative)}, defaults: \code{Limits::epsilon()}
+
+    \item
+    \code{ct::utils::norm} different from \code{std::norm}: returns \code{T} for most types, extensible via ADL and member functions.
+
+    \item
+    (ULP (units in the last place; float interpreted as int) not available (yet, since hard without UB).)
+  \end{itemize}
+}
+
+\begin{frame}
+  \frametitle{Conversion Tools}
+
+  \textbf{\href{%
+    https://github.com/clean-test/migration%
+  }{
+    \includegraphics[width=.65\baselineskip]{img/github}
+    clean-test/migration
+  }
+  }
+
+  \begin{itemize}
+    \item
+    Hackable converter for existing tests
+
+    \item
+    \code{ct::lift} expectations for introspection
+  \end{itemize}
+
+  \vspace{6pt}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{.5\textwidth}
+      \emph{Original}
+      \includeDemo{ConversionBefore.cpp}
+    \end{column}
+    \begin{column}{.5\textwidth}
+      \emph{Converted}
+      \includeDemo{ConversionAfter.cpp}
+    \end{column}
+  \end{columns}
+\end{frame}
+\note{
+  \begin{itemize}
+    \item
+    Written in python
+
+    \item
+    Attempts to lift the tree appropriately (heuristic, works well)
+
+    \item
+    Currently boost only
+
+    \item
+    Shown example \textbf{without modifications}
+
+    \item
+    Supports \textbf{all test features} seen here, e.g.\ distance checks
+
+    \item
+    Output not perfect in general: might need \textbf{minor manual adaptations} to compile
+  \end{itemize}
+}
+
+\section{Concurrency}
+\begin{frame}[fragile]
+  \frametitle{Concurrent Tests}
+
+  \begin{columns}[onlytextwidth]
+    \setlength{\leftmargini}{-5pt}
+    \begin{column}{.5\textwidth}
+      \begin{itemize}
+        \item
+        Test-case attribution managed via \code{ct::Observer}
+
+        \item
+        Automatic for single threaded tests
+
+        \item
+        Propagate \code{ct::Observer} for advanced parallel tests
+
+        \item
+        \code{ct::expect} thread safe
+      \end{itemize}
+    \end{column}
+    \begin{column}{.5\textwidth}
+      \includeDemo[
+        linerange = {20},
+        firstnumber = 20,
+      ]{Observer.cpp}
+    \end{column}
+  \end{columns}
+
+  \includeConsole{Observer}
+\end{frame}
+\note{
+  \begin{itemize}
+    \item
+    Two more \textbf{high level features}:
+
+    \item
+    Step back: single threaded execution makes \textbf{linking / connecting} failures to tests trivial.
+
+    \item
+    2 options for propagation:
+    1st \code{ct::expect} parameter or
+    via \code{ct::ObservationSetup}.
+
+    \item
+    \textbf{Warning} identifies all affected and \RD{executed} locations.
+    Note that this also applies to successful expectations.
+  \end{itemize}
+}
+
+\section{Data Driven}
+\begin{frame}[fragile]
+  \frametitle{Data Driven Tests}
+
+  \begin{columns}[onlytextwidth]
+    \begin{column}{.55\textwidth}
+      \includeDemo[%
+        linerange = {15-31},%
+        firstnumber = 15,%
+      ]{DataDriven.cpp}
+    \end{column}
+    \begin{column}{.47\textwidth}
+      \includeConsole{DataDriven}
+    \end{column}
+  \end{columns}
+\end{frame}
+\note{
+  \begin{itemize}
+    \item
+    Personal favorite for verifying invariants
+    \item
+    Two ways of passing data: parameter and pipe.
+
+    \item
+    Can be combined with \code{Observer}s.
+
+    \item
+    Copes with rvalue reference data.
+  \end{itemize}
+}
+
+\begin{frame}
+  \frametitle{Wrap-up}
+
+  \vspace{8pt}
+  \begin{exampleblock}{Summary: Clean Test}
+    \begin{itemize}
+      \item is a modern, versatile and yet simple to use testing framework.
+      \item supports short-circuit expression introspection without macros.
+      \item provides various productivity features.
+      \item is built for parallel tests and test execution.
+    \end{itemize}
+  \end{exampleblock}
+
+  \begin{columns}[onlytextwidth]
+    \begin{column}{.48\textwidth}
+      \begin{block}{Future Work}
+        \parbox[c][.35\textheight][c]{\textwidth}{
+          \begin{itemize}
+            \item Optimize test scheduling
+            \item Lazy data providers
+            \item Further migration utilities
+            \item Convenience (e.g.\ for ranges)
+          \end{itemize}
+        }
+      \end{block}
+    \end{column}
+
+    \begin{column}{.48\textwidth}
+      \begin{block}{References}
+        \parbox[c][.35\textheight][c]{\textwidth}{
+          \begin{tabular}{ @{}l l@{} }
+            Clean Test &
+            \href{%
+              https://github.com/clean-test/clean-test
+            }{%
+              \includegraphics[height=10pt]{img/github} clean-test/clean-test
+            } \\
+
+            Migrate&
+            \href{%
+              https://github.com/clean-test/migration
+            }{%
+              \includegraphics[height=10pt]{img/github} clean-test/migration
+            } \\
+
+            This Talk&
+            \href{%
+              https://github.com/clean-test/talk/tree/main/2022-meeting-cpp
+            }{%
+              \includegraphics[height=10pt]{img/github} clean-test/talk
+            } \\
+
+            Philipp &
+            \href{https://github.com/m8mble/}{\includegraphics[height=10pt]{img/github}}
+            \href{https://stackoverflow.com/users/2747160/m8mble}{\includegraphics[height=10pt]{img/stackoverflow}}
+            \href{https://twitter.com/m8mble}{\includegraphics[height=10pt]{img/twitter}}
+            \href{https://mastodon.social/@m8mble}{\includegraphics[height=10pt]{img/mastodon}}
+            \href{https://www.reddit.com/user/m8mble}{\includegraphics[height=10pt]{img/reddit}}
+            @m8mble
+          \end{tabular}\\
+
+          Comments, issues and PRs welcome.
+        }
+      \end{block}
+    \end{column}
+  \end{columns}
+\end{frame}
+\note{
+  \begin{itemize}
+    \item
+    Make a 1.0 release
+
+    \item
+    Appreciate any sort of feedback
+
+    \item
+    Scheduling: Ask for a certain amount of (usable) CPUs.
+  \end{itemize}
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\appendix
+
+\begin{frame}
+  \frametitle{Asio Thread Pool}
+
+  \vspace{-4pt}
+  \begin{columns}[T]
+    \begin{column}{.5\textwidth}
+      \includeDemo[%
+        linerange = {15-37},%
+        firstnumber = 11,%
+        aboveskip = 0pt,%
+        belowskip = 0pt,%
+      ]{Asio.cpp}
+    \end{column}
+
+    \begin{column}{.5\textwidth}
+      \includeDemo[%
+        linerange = {40},%
+        firstnumber = 35,%
+        aboveskip = 0pt,%
+        belowskip = 0pt,%
+      ]{Asio.cpp}
+
+      \vspace{10pt}
+      \includeConsole{Asio}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\end{document}
+

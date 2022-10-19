@@ -1,0 +1,49 @@
+% Metropolis
+\usetheme{metropolis}
+\useinnertheme{metropolis}
+\useoutertheme{metropolis}
+\usefonttheme{metropolis}
+\usecolortheme{rose}
+\setbeamercolor{background canvas}{bg=white}
+% Disable announcement frames for sections
+\metroset{sectionpage=none}
+
+\mode<handout>{%
+  \pgfpagesuselayout{4 on 1}[a4paper, landscape, border shrink=5mm]
+}
+
+% Configuration for cpp examples
+\lstset{
+ language = [11]C++,
+ % Line numbering
+ numbers = left,
+ numberstyle = \tiny\color{TextGray}\texttt,
+ numbersep = 5pt,
+ % Code styling
+ basicstyle = \scriptsize\ttfamily, % maybe footnotesize > script > tiny
+ % frame = single,
+ % backgroundcolor = \color{gray},%
+ aboveskip = 2pt,%
+ belowskip = 3pt,%
+%
+ keywordstyle = \color{TextBlue},
+ commentstyle = \color{TextGray},
+ stringstyle = \color{TextGreen},
+ autogobble = true,
+ showlines = true, % retain trailing empty lines
+ morekeywords = {
+   override,
+   final,
+   char8_t,
+   concept,
+   co_await,
+   co_return,
+   co_yield,
+   requires,
+   import,
+   module,
+   _test,
+   _suite,
+   _i,
+ },
+}

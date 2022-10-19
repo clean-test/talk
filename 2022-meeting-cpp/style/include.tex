@@ -1,0 +1,33 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% File including
+
+% When using a different build dir, change this
+\newcommand{\builddir}{build}
+
+\newcommand{\useIfExists}[2]{%
+  \IfFileExists{\builddir/#2}{#1{\builddir/#2}}{file comes here\typeout{No file \builddir/#2.}}%
+}
+
+% Absolute path conditional file usage
+% Example: \useIfExistsAbs{\include}{hans.tex}
+% will include hans.tex if it exists; prints description msg otherwise, to motivate latexmk to generate hans.tex.
+\newcommand{\useIfExistsAbs}[2]{%
+  \useIfExists{#1}{#2}
+}
+
+% Command to include graphic pdf corresponding to #1.{tikz,dcg,tex}
+% Special handling is necessary, in order to convince latexmk that the initially missing #2.pdf is not a hard error but
+% actually rather an expected one. Without that, latexmk bails out after trying to build each *.pdf (including the main
+% document) exactly once (which is not sufficient).
+% Details: https://tex.stackexchange.com/questions/40850/latexmk-multiple-custom-generated-files-and-input
+\newcommand{\includeConsole}[2][]{%
+  \useIfExistsAbs{\ConsoleInput[#1]}{demos/#2.console.tex}
+}
+
+\newcommand{\includeDemo}[2][]{%
+  \lstinputlisting[#1]{demos/#2}
+}
+
+\newcommand{\includeDrawIo}[2][]{%
+  \useIfExistsAbs{\includegraphics[#1]}{img/#2.pdf}
+}

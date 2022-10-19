@@ -1,0 +1,39 @@
+
+ \newcommand{\BU}[1]{\textcolor{TextBlue}{#1}}
+ \newcommand{\OR}[1]{\textcolor{TextOrange}{#1}}
+ \newcommand{\YL}[1]{\textcolor{NordYellow}{#1}}
+ \newcommand{\RD}[1]{\textcolor{darkred}{#1}}
+ \newcommand{\GR}[1]{\textcolor{TextGreen}{#1}}
+ \newcommand{\MG}[1]{\textcolor{NordMagenta}{#1}}
+
+ \DefineVerbatimEnvironment{console}{Verbatim}{%
+  commandchars=\\\{\},%
+  fontsize=\scriptsize%
+ }
+
+ \newcommand{\ConsoleInput}[2][]{%
+   \begin{mdframed}[%
+     backgroundcolor = ConsoleBG,%
+     innerleftmargin = 2pt,%
+     skipabove = 0pt,%
+   ]%
+     \VerbatimInput[%
+       commandchars = \\\{\},%
+       fontsize = \scriptsize,%
+       numbers = left,%
+       numbersep = 5pt,%
+       #1,%
+     ]{#2}%
+   \end{mdframed}%
+ }
+ \renewcommand{\theFancyVerbLine}{%
+   \textcolor{gray}{\tiny\texttt{C\arabic{FancyVerbLine}}}%
+ }
+
+ \newcommand{\code}[1]{%
+  \texttt{\OR{#1}}%
+ }
+
+ \newcommand{\todo}[1]{%
+  \RD{\textbf{\textsc{Todo}: #1.}}%
+ }
